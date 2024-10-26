@@ -13,16 +13,12 @@ provider "aws" {
   region = "us-east-2"
 }
 
-resource "aws_launch_configuration" "example" {
-  image_id        = "ami-0fb653ca2d3203ac1"
-  instance_type   = "t2.micro"
-  security_groups = [aws_security_group.instance.id]
+resource "aws_launch_template" "example" {
+  image_id               = "ami-0fb653ca2d3203ac1"
+  instance_type          = "t2.micro"
+  vpc_security_group_ids = [aws_security_group.instance.id]
 
-  user_data = <<-EOF
-              #!/bin/bash
-              echo "Hello, World" > index.html
-              nohup busybox httpd -f -p ${var.server_port} &
-              EOF
+  user_data = filebase64("busybox-server.sh")
 
   # Required when using a launch configuration with an auto scaling group.
   lifecycle {
@@ -31,14 +27,17 @@ resource "aws_launch_configuration" "example" {
 }
 
 resource "aws_autoscaling_group" "example" {
-  launch_configuration = aws_launch_configuration.example.name
-  vpc_zone_identifier  = data.aws_subnets.default.ids
+  vpc_zone_identifier = data.aws_subnets.default.ids
 
   target_group_arns = [aws_lb_target_group.asg.arn]
   health_check_type = "ELB"
 
   min_size = 2
   max_size = 10
+
+  launch_template {
+    id = aws_launch_template.example.id
+  }
 
   tag {
     key                 = "Name"
