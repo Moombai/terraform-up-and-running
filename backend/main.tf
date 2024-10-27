@@ -2,6 +2,19 @@ provider "aws" {
   region = "us-east-2"
 }
 
+terraform {
+  backend "s3" {
+    # configure the s3 bucket to use for the backend
+    bucket = "terraform-up-and-running-state-27102024"
+    key    = "global/s3/terraform.tfstate"
+    region = "us-east-2"
+
+    # configure the dynamodb table for state locking
+    dynamodb_table = "terraform-up-and-running-locks-27102024"
+    encrypt        = true
+  }
+}
+
 resource "aws_s3_bucket" "terraform_state" {
   bucket = "terraform-up-and-running-state-27102024"
 
