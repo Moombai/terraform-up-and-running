@@ -4,6 +4,7 @@ provider "aws" {
 
 terraform {
   backend "s3" {
+    # defines the path to the terraform state file in the S3 bucket
     key = "global/s3/terraform.tfstate"
   }
 }
