@@ -7,6 +7,10 @@ terraform {
       version = "~> 4.0"
     }
   }
+  # todo: we'll need to reinitialize this file with the new backend configuration when we are ready
+  backend "s3" {
+    key = "stage/services/webserver-cluster/terraform.tfstate"
+  }
 }
 
 provider "aws" {
@@ -18,6 +22,12 @@ resource "aws_launch_template" "example" {
   instance_type          = "t2.micro"
   vpc_security_group_ids = [aws_security_group.instance.id]
 
+  # todo: let's try this at some point: https://learning.oreilly.com/library/view/terraform-up-and/9781098116736/ch03.html#:-:text=lists 
+  # we need to encrypt user_data so the above may not be possible
+  # if we do try this we'll need to do a few things
+  # 1. run the datastore
+  # 2. run the webserver-cluster
+  # 3. use the templating described in the book
   user_data = filebase64("busybox-server.sh")
 
   # Required when using a launch configuration with an auto scaling group.
@@ -143,4 +153,16 @@ data "aws_subnets" "default" {
 
 data "aws_vpc" "default" {
   default = true
+}
+
+# configure webserver-cluster to read from the remote state of the mysql datastore
+# this is a read only action, like all data sources
+data "terraform_remote_state" "db" {
+  backend = "s3"
+
+  config = {
+    bucket = "terraform-up-and-running-state-27102024"
+    key    = "stage/datastores/mysql/terraform.tfstate"
+    region = "us-east-2"
+  }
 }
