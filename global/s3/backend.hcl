@@ -1,3 +1,4 @@
+#todo: let's check if this belongs here after completing the chapter
 # configure the s3 bucket to use for the backend
 
 bucket = "terraform-up-and-running-state-27102024"
