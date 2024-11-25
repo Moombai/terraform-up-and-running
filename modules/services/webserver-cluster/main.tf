@@ -7,14 +7,9 @@ terraform {
       version = "~> 4.0"
     }
   }
-  # todo: we'll need to reinitialize this file with the new backend configuration when we are ready
   backend "s3" {
     key = "stage/services/webserver-cluster/terraform.tfstate"
   }
-}
-
-provider "aws" {
-  region = "us-east-2"
 }
 
 resource "aws_launch_template" "example" {
@@ -51,13 +46,13 @@ resource "aws_autoscaling_group" "example" {
 
   tag {
     key                 = "Name"
-    value               = "terraform-asg-example"
+    value               = "${var.cluster_name}-example"
     propagate_at_launch = true
   }
 }
 
 resource "aws_security_group" "instance" {
-  name = "terraform-example-instance"
+  name = "${var.cluster_name}-instance"
 
   ingress {
     from_port   = var.server_port
@@ -91,7 +86,7 @@ resource "aws_lb_listener" "http" {
 }
 
 resource "aws_security_group" "alb" {
-  name = "terraform-example-alb"
+  name = "${var.cluster_name}-alb"
 
   # Allow inbound HTTP requests
   ingress {
@@ -161,8 +156,8 @@ data "terraform_remote_state" "db" {
   backend = "s3"
 
   config = {
-    bucket = "terraform-up-and-running-state-27102024"
-    key    = "stage/data-stores/mysql/terraform.tfstate"
+    bucket = "${var.db_remote_state_bucket}-27102024"
+    key    = "${var.db_remote_state_key}/terraform.tfstate"
     region = "us-east-2"
   }
 }
