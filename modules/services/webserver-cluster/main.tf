@@ -1,17 +1,3 @@
-terraform {
-  required_version = ">= 1.0.0, < 2.0.0"
-
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 4.0"
-    }
-  }
-  backend "s3" {
-    key = "stage/services/webserver-cluster/terraform.tfstate"
-  }
-}
-
 resource "aws_launch_template" "example" {
   image_id               = "ami-0fb653ca2d3203ac1"
   instance_type          = "t2.micro"
@@ -150,8 +136,9 @@ data "aws_vpc" "default" {
   default = true
 }
 
-# configure webserver-cluster to read from the remote state of the mysql datastore
-# this is a read only action, like all data sources
+# configure webserver-cluster to read our mysql modules remote state file (terraform backend)
+# we might want to do this to get access to database values such as the
+# the database port or username directly in terraform
 data "terraform_remote_state" "db" {
   backend = "s3"
 
