@@ -9,7 +9,7 @@ resource "aws_launch_template" "example" {
   # 1. run the datastore
   # 2. run the webserver-cluster
   # 3. use the templating described in the book
-  user_data = filebase64("busybox-server.sh")
+  user_data = filebase64("${path.module}/busybox-server.sh")
 
   # Required when using a launch configuration with an auto scaling group.
   lifecycle {
@@ -143,8 +143,8 @@ data "terraform_remote_state" "db" {
   backend = "s3"
 
   config = {
-    bucket = "${var.db_remote_state_bucket}-27102024"
-    key    = "${var.db_remote_state_key}/terraform.tfstate"
+    bucket = "${var.db_remote_state_bucket}"
+    key    = "${var.db_remote_state_key}"
     region = "us-east-2"
   }
 }
