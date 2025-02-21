@@ -1,6 +1,6 @@
 resource "aws_launch_template" "example" {
   image_id               = "ami-0fb653ca2d3203ac1"
-  instance_type          = "t2.micro"
+  instance_type          = var.instance_type
   vpc_security_group_ids = [aws_security_group.instance.id]
 
   # todo: let's try this at some point: https://learning.oreilly.com/library/view/terraform-up-and/9781098116736/ch03.html#:-:text=lists 
@@ -23,8 +23,8 @@ resource "aws_autoscaling_group" "example" {
   target_group_arns = [aws_lb_target_group.asg.arn]
   health_check_type = "ELB"
 
-  min_size = 2
-  max_size = 10
+  min_size = var.min_size
+  max_size = var.max_size
 
   launch_template {
     id = aws_launch_template.example.id
