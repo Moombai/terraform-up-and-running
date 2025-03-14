@@ -20,11 +20,11 @@ provider "aws" {
 module "users" {
   source = "../../modules/landing-zone/iam-user"
 
-  count     = length(var.user_names)
-  user_name = var.user_names[count.index]
+  for_each  = toset(var.user_names)
+  user_name = each.value
 }
 
 output "user_arns" {
-  value       = module.users[*].user_arn
+  value       = values(module.users)[*].user_arn
   description = "The ARNs of the created IAM users"
 }
