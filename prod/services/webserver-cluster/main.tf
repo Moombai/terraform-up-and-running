@@ -26,6 +26,11 @@ module "webserver-cluster" {
   instance_type = "t2.micro"
   min_size      = 2
   max_size      = 10
+
+  custom_tags = {
+    Owner     = "team-foo"
+    ManagedBy = "terraform"
+  }
 }
 
 resource "aws_autoscaling_schedule" "scale_out_during_business_hours" {
